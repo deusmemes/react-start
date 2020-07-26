@@ -28,6 +28,25 @@ const optimization = () => {
 
 const filename = (folder, ext) => isDev ? `${folder}/[name].${ext}` : `${folder}/[name].[hash:8].${ext}`;
 
+const getPlugins = () => {
+    const plugins = [
+        new HtmlWebpackPlugin({
+            template: './public/index.html',
+            minify: {
+                collapseWhitespace: isProd
+            }
+        }),
+        new CopyWebpackPlugin([]),
+        new MiniCssExtractPlugin({
+            filename: filename('css', 'css')
+        })
+    ];
+
+    if (isProd) plugins.push(new CleanWebpackPlugin());
+
+    return plugins;
+};
+
 module.exports = {
     entry: "./src/index.js",
     output:{
@@ -42,7 +61,6 @@ module.exports = {
     },
     optimization: optimization(),
     devServer: {
-        // contentBase: 'public',
         compress: true,
         open: true,
         port: 9000,
@@ -90,19 +108,5 @@ module.exports = {
             }
         ],
     },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: './public/index.html',
-            minify: {
-                collapseWhitespace: isProd
-            }
-        }),
-        isProd && new CleanWebpackPlugin(),
-        new CopyWebpackPlugin([
-
-        ]),
-        new MiniCssExtractPlugin({
-            filename: filename('css', 'css')
-        })
-    ]
+    plugins: getPlugins()
 };
