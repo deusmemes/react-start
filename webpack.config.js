@@ -28,27 +28,10 @@ const optimization = () => {
 
 const filename = (folder, ext) => isDev ? `${folder}/[name].${ext}` : `${folder}/[name].[hash:8].${ext}`;
 
-const cssLoaders = extra => {
-    const loaders = [
-        {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-                hmr: isDev,
-                reloadAll: true
-            }
-        },
-        'css-loader'
-    ];
-
-    if (extra) loaders.push(extra);
-
-    return loaders;
-};
-
 module.exports = {
     entry: "./src/index.js",
     output:{
-        path: path.resolve(__dirname, 'public'),
+        path: path.resolve(__dirname, 'dist'),
         filename: "js/bundle.js"
     },
     resolve: {
@@ -59,7 +42,7 @@ module.exports = {
     },
     optimization: optimization(),
     devServer: {
-        contentBase: 'public',
+        // contentBase: 'public',
         compress: true,
         open: true,
         port: 9000,
@@ -87,23 +70,34 @@ module.exports = {
                 ]
             },
             {
-                test: /\.css$/,
-                use: cssLoaders()
-            },
-            {
-                test: /\.s[ac]ss$/,
-                use: cssLoaders('sass-loader')
+                test: /\.s?[ac]ss$/,
+                loader: [
+                    isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            sourceMap: isDev
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sourceMap: isDev
+                        }
+                    }
+                ]
             }
         ],
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html',
+            template: './public/index.html',
             minify: {
                 collapseWhitespace: isProd
             }
         }),
-        new CleanWebpackPlugin(),
+        isProd && new CleanWebpackPlugin(),
         new CopyWebpackPlugin([
 
         ]),
